@@ -15,7 +15,7 @@ const config = rc('hbu', {
 const testPattern = config._[0];
 if (!testPattern) throw new Error('No test pattern specified.');
 
-const times = String(config.times);
+const times = config.times;
 
 const filePaths = glob.sync(testPattern);
 
@@ -32,7 +32,7 @@ const processSpawn = filePath => {
     const env = {
         ...process.env,
         HBU_LABEL: label,
-        HBU_TIMES: times
+        HBU_TIMES: Number(times)
     };
     return spawn('node', args, { env });
 };
