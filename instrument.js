@@ -3,6 +3,12 @@
 const label = process.env.HBU_LABEL;
 
 const { PerformanceObserver, performance } = require('perf_hooks');
+const gc = require('gc-stats')();
+
+gc.on('stats', stats => {
+    console.log('GC happened', stats);
+});
+
 const toMB = v => Math.round(v / 1024 / 1024 * 100) / 100;
 let previousHeap = process.memoryUsage().heapUsed;
 
@@ -35,5 +41,3 @@ process.on('exit', () => {
     performance.measure(label, `${label}_start`, `${label}_end`);
     obs.disconnect();
 });
-
-require(process.env.HBU_TEST_PATH);

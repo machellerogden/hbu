@@ -15,6 +15,8 @@ const config = rc('hbu', {
 const testPattern = config._[0];
 if (!testPattern) throw new Error('No test pattern specified.');
 
+const testArgs = config['--'];
+
 const times = config.times;
 
 const filePaths = glob.sync(testPattern);
@@ -27,14 +29,17 @@ const runnerPath = path.join(__dirname, './runner');
 
 const processSpawn = filePath => {
     const testPath = path.join(process.cwd(), filePath);
-    const { dir, name } = path.parse(testPath);
+    const { dir:cwd, name:label } = path.parse(testPath);
     const env = {
         ...process.env,
-        HBU_LABEL: name,
-        HBU_TIMES: Number(times),
-        HBU_TEST_PATH: testPath
+        HBU_LABEL: label,
+        HBU_TIMES: Number(times)
     };
-    return fork(path.join(__dirname, 'runner.js'), [], { env, cwd: dir });
+    return fork(testPath, testArgs, {
+        env,
+        cwd,
+        execArgv: [ '-r', path.join(__dirname, 'instrument.js') ]
+    });
 };
 
 const runOne = filePath => {
