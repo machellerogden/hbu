@@ -19,6 +19,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "gc-stats": "^1.2.1",
     "glob": "^7.1.3",
     "markdown-table": "^1.1.2",
     "rc": "^1.2.8"
