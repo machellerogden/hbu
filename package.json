@@ -1,0 +1,22 @@
+{
+  "name": "hbu",
+  "version": "0.0.0",
+  "description": "How's by u? A performance analysis CLI",
+  "bin": "index.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "performance",
+    "analysis",
+    "cli"
+  ],
+  "author": "Mac Heller-Ogden",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^7.1.3",
+    "markdown-table": "^1.1.2",
+    "rc": "^1.2.8"
+  }
+}
