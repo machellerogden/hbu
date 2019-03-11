@@ -26,15 +26,15 @@ const columnAlignment = [ null, '.', '.' ];
 const runnerPath = path.join(__dirname, './runner');
 
 const processSpawn = filePath => {
-    const fullPath = path.join(__dirname, filePath);
-    const label = path.parse(filePath).name;
+    const testPath = path.join(process.cwd(), filePath);
+    const { dir, name } = path.parse(testPath);
     const env = {
         ...process.env,
-        HBU_LABEL: label,
+        HBU_LABEL: name,
         HBU_TIMES: Number(times),
-        HBU_TEST_PATH: fullPath
+        HBU_TEST_PATH: testPath
     };
-    return fork('runner.js', [], { env });
+    return fork(path.join(__dirname, 'runner.js'), [], { env, cwd: dir });
 };
 
 const runOne = filePath => {
