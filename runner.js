@@ -15,11 +15,14 @@ function memory() {
 
 const obs = new PerformanceObserver((items) => {
     const { name, duration } = items.getEntries()[0];
-    process.stdout.write(JSON.stringify([
-        name,
-        memory(),
-        `${duration} MS`
-    ]));
+    process.send({
+        done: true,
+        data: [
+            name,
+            memory(),
+            `${duration} MS`
+        ]
+    });
     performance.clearMarks();
 });
 
@@ -32,3 +35,5 @@ process.on('exit', () => {
     performance.measure(label, `${label}_start`, `${label}_end`);
     obs.disconnect();
 });
+
+require(process.env.HBU_TEST_PATH);

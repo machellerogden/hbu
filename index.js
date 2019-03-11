@@ -5,7 +5,7 @@ const path = require('path');
 const glob = require('glob');
 const rc = require('rc');
 const table = require('markdown-table')
-const { spawnSync:spawn } = require('child_process');
+const { fork } = require('child_process');
 const { readdirSync:readdir } = require('fs');
 
 const config = rc('hbu', {
@@ -28,30 +28,29 @@ const runnerPath = path.join(__dirname, './runner');
 const processSpawn = filePath => {
     const fullPath = path.join(__dirname, filePath);
     const label = path.parse(filePath).name;
-    const args = [ '-r', runnerPath, fullPath ];
     const env = {
         ...process.env,
         HBU_LABEL: label,
-        HBU_TIMES: Number(times)
+        HBU_TIMES: Number(times),
+        HBU_TEST_PATH: fullPath
     };
-    return spawn('node', args, { env });
+    return fork('runner.js', [], { env });
 };
 
 const runOne = filePath => {
-    const p = processSpawn(filePath);
-    const err = p.error || p.stderr.toString();
-    if (err) {
-        console.error('Error in test run:');
-        console.error(err);
-        process.exit(1);
-    }
-    return JSON.parse(p.stdout.toString());
+    return new Promise((resolve, reject) => {
+        const p = processSpawn(filePath);
+        p.on('message', msg => {
+            if (msg.done && msg.data) return resolve(msg.data);
+        });
+    });
 };
 
-const runAll = filePaths => filePaths.map(runOne);
+const runAll = filePaths => Promise.all(filePaths.map(runOne));
 
-const run = () => console.log(
-    table([ headings, ...runAll(filePaths) ],
-    { align: columnAlignment }));
+const run = (paths) => runAll(paths).then(results =>
+    console.log(
+        table([ headings, ...results ],
+        { align: columnAlignment })));
 
-run();
+run(filePaths);
