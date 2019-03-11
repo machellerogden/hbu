@@ -3,3 +3,5 @@
 // * https://nodejs.org/en/docs/guides/simple-profiling/
 // * https://firebearstudio.com/blog/node-js-prof-profiling-node-js-applications.html
 // * https://gist.github.com/listochkin/10973974
+// * https://github.com/thlorenz/v8-perf
+// * https://link.medium.com/LQPyYsizYU
