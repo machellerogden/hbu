@@ -9,7 +9,8 @@ const { fork } = require('child_process');
 const { readdirSync:readdir } = require('fs');
 
 const config = rc('hbu', {
-    times: 10
+    times: 10,
+    'gc-stats': false
 });
 
 const testPattern = config._[0];
@@ -18,12 +19,17 @@ if (!testPattern) throw new Error('No test pattern specified.');
 const testArgs = config['--'];
 
 const times = config.times;
+const useGC = config['gc-stats'];
 
 const filePaths = glob.sync(testPattern, { nodir: true });
 
-const headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)', 'GC Events', "GC Collected Heap (MB)", 'GC Pause Duration (MS)' ];
+let headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)' ];
+let columnAlignment = [ null, '.', '.' ];
 
-const columnAlignment = [ null, '.', '.', null, '.', null ];
+if (useGC) {
+    headings = [ ...headings, 'GC Events', "GC Collected Heap (MB)", 'GC Pause Duration (MS)' ];
+    columnAlignment = [ ...columnAlignment, null, '.', null ];
+}
 
 const runnerPath = path.join(__dirname, './runner');
 
@@ -152,19 +158,23 @@ const run = paths => runAll(paths).then(results => {
         const heapUsed = memory_entries[memory_entries.length - 1].heapUsed - memory_entries[0].heapUsed;
         const duration = perf_entries[0].duration;
 
-        const gc_count = gc_events.length;
+        if (useGC) {
+            const gc_count = gc_events.length;
 
-        let gc_heap = 0;
-        let gc_pause = 0;
-        if (gc_count > 1) {
-            gc_heap = gc_events.map(({ diff }) => diff.usedHeapSize).reduce((a, b) => a - b);
-            gc_pause = gc_events.map(evt => evt.pauseMS).reduce((a, b) => a + b);
-        } else if (gc_count > 0) {
-            gc_heap = gc_events[0].diff.usedHeapSize;
-            gc_pause = gc_events[0].pauseMS;
+            let gc_heap = 0;
+            let gc_pause = 0;
+            if (gc_count > 1) {
+                gc_heap = gc_events.map(({ diff }) => diff.usedHeapSize).reduce((a, b) => a - b);
+                gc_pause = gc_events.map(evt => evt.pauseMS).reduce((a, b) => a + b);
+            } else if (gc_count > 0) {
+                gc_heap = gc_events[0].diff.usedHeapSize;
+                gc_pause = gc_events[0].pauseMS;
+            }
+
+            return [ label, `${toMB(heapUsed)}`, duration, String(gc_count), `${toMB(gc_heap)}`, String(gc_pause) ];
         }
 
-        return [ label, `${toMB(heapUsed)}`, duration, String(gc_count), `${toMB(gc_heap)}`, String(gc_pause) ];
+        return [ label, `${toMB(heapUsed)}`, duration ];
     });
 
     console.log(table([ headings, ...report ], { align: columnAlignment }))
