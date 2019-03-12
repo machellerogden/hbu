@@ -19,7 +19,7 @@ const testArgs = config['--'];
 
 const times = config.times;
 
-const filePaths = glob.sync(testPattern);
+const filePaths = glob.sync(testPattern, { nodir: true });
 
 const headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)', 'GC Events', "GC'd Heap (MB)", 'GC Pause Duration (MS)' ];
 
