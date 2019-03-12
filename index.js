@@ -21,7 +21,7 @@ const times = config.times;
 
 const filePaths = glob.sync(testPattern, { nodir: true });
 
-const headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)', 'GC Events', "GC'd Heap (MB)", 'GC Pause Duration (MS)' ];
+const headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)', 'GC Events', "GC Collected Heap (MB)", 'GC Pause Duration (MS)' ];
 
 const columnAlignment = [ null, '.', '.', null, '.', null ];
 
