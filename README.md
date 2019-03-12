@@ -10,7 +10,7 @@ npm i -g hbu
 
 ## Example
 
-In you had a test file called `example-test.js` inside a `./tests` directory which looked like this:
+In you had a test file called `example-test.js` inside a `./example` directory which looked like this:
 
 ```
 const data = {
@@ -31,7 +31,7 @@ while (i < process.env.HBU_TIMES) {
 You could then run your test, like this:
 
 ```
-$ hbu './tests/*.js' --times 100000
+$ hbu './example/*.js' --times 100000
 | Label        | Heap Used          | Elapsed Time             |
 | ------------ | :----------------: | :----------------------: |
 | example-test |        12.97 MB    |          206.248026 MS   |
