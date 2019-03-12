@@ -6,7 +6,6 @@ const glob = require('glob');
 const rc = require('rc');
 const table = require('markdown-table')
 const { fork } = require('child_process');
-const { readdirSync:readdir } = require('fs');
 
 const config = rc('hbu', {
     times: 10,
@@ -141,6 +140,16 @@ const runOne = filePath => {
 };
 
 const runAll = filePaths => Promise.all(filePaths.map(runOne));
+
+const runAllSeq = filePaths => {
+    const [ head, ...rest ] = filePaths;
+    return filePaths.reduce((acc, fp) =>
+        acc.then(([ results, p ]) => p.then(result =>
+            [ [ ...results, result ], runOne(fp) ]
+        )),
+        Promise.resolve([ [], runOne(head) ]))
+        .then(([results]) => results);
+};
 
 const toMB = v => Math.round(v / 1024 / 1024 * 100) / 100;
 
