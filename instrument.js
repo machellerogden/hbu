@@ -11,8 +11,8 @@ let previousHeapUsed = process.memoryUsage().heapUsed;
 
 function memoryCheck() {
     const newHeapUsed = process.memoryUsage().heapUsed;
-    const gc_event_count = gc_events.length;
-    const stats = gc_events.splice(0, gc_event_count).reduce((acc, evt) => ({
+    const gc_count = gc_events.length;
+    const stats = gc_events.splice(0, gc_count).reduce((acc, evt) => ({
         gc_diff: acc.gc_diff - evt.diff,
         gc_time: acc.gc_time + evt.pause
     }), {
@@ -20,10 +20,10 @@ function memoryCheck() {
         gc_diff: 0
     });
     const diff = newHeapUsed - previousHeapUsed;
-    stats.gc_count = gc_event_count;
     previousHeapUsed = newHeapUsed;
     return {
         diff,
+        gc_count,
         ...stats
     };
 }
@@ -35,11 +35,11 @@ const obs = new PerformanceObserver((items) => {
         done: true,
         data: [
             name,
-            `${toMB(stats.diff)} MB`,
-            `${duration} MS`,
-            `${toMB(stats.gc_diff)} MB`,
-            stats.gc_count,
-            `${stats.gc_time} MS`
+            `${toMB(stats.diff)}`,
+            `${duration}`,
+            String(stats.gc_count),
+            `${toMB(stats.gc_diff)}`,
+            `${stats.gc_time}`
         ]
     });
     performance.clearMarks();

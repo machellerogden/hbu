@@ -21,9 +21,9 @@ const times = config.times;
 
 const filePaths = glob.sync(testPattern);
 
-const headings = [ 'Test Label', 'Heap Used', 'Duration', "GC'd Heap", 'GC Events', 'GC Pause Duration' ];
+const headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)', 'GC Events', "GC'd Heap (MB)", 'GC Pause Duration (MS)' ];
 
-const columnAlignment = [ null, '.', '.', '.', '.', '.' ];
+const columnAlignment = [ null, '.', '.', '.', null, null ];
 
 const runnerPath = path.join(__dirname, './runner');
 
@@ -54,8 +54,6 @@ const runOne = filePath => {
 const runAll = filePaths => Promise.all(filePaths.map(runOne));
 
 const run = (paths) => runAll(paths).then(results =>
-    console.log(
-        table([ headings, ...results ],
-        { align: columnAlignment })));
+    console.log(table([ headings, ...results ], { align: columnAlignment })));
 
 run(filePaths);
