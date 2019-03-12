@@ -21,9 +21,9 @@ const times = config.times;
 
 const filePaths = glob.sync(testPattern);
 
-const headings = [ 'Label', 'Heap Used', 'Elapsed Time' ];
+const headings = [ 'Test Label', 'Heap Used', 'Duration', "GC'd Heap", 'GC Events', 'GC Pause Duration' ];
 
-const columnAlignment = [ null, '.', '.' ];
+const columnAlignment = [ null, '.', '.', '.', '.', '.' ];
 
 const runnerPath = path.join(__dirname, './runner');
 
