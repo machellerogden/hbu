@@ -40,6 +40,9 @@ const processSpawn = (filePath, label) => {
         HBU_LABEL: label,
         HBU_TIMES: Number(times)
     };
+    if (useGC) {
+        env.HBU_GC_STATS = true;
+    }
     return fork(testPath, testArgs, {
         env,
         cwd,
