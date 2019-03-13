@@ -48,8 +48,7 @@ const processSpawn = (filePath, label) => {
         cwd,
         execArgv: [
             '-r', path.join(__dirname, 'instrument.js'),
-            '--expose-gc',
-            '--single-threaded-gc'
+            '--expose-gc'
         ]
     });
 };
