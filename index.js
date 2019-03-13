@@ -130,7 +130,6 @@ const run = paths => runAll(paths).then(results => {
                 gc_heap = gc_events
                     .map(({ diff }) => diff.usedHeapSize)
                     .reduce((a, b) => a - b);
-                if (Math.sign(gc_heap) === -1) gc_heap = 0;
                 gc_pause = gc_events.map(evt => evt.pause).reduce((a, b) => a + b) / 1200000;
             } else if (gc_length > 0) {
                 gc_heap = gc_events[0].diff.usedHeapSize;
