@@ -1,6 +1,6 @@
 {
   "name": "hbu",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "How's by u? A performance analysis CLI",
   "bin": "index.js",
   "main": "index.js",
