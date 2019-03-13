@@ -27,15 +27,22 @@ process.on('exit', () => {
     });
 });
 
-global.gc();
+
 if (process.env.HBU_GC_STATS) {
+    let skip_gc_send = true;
     require('gc-stats')().on('stats', stats => {
+        if (skip_gc_send) {
+            skip_gc_send = false;
+            return;
+        }
         process.send({
             type: 'gc_event',
             data: stats
         });
     });
 }
+
+global.gc();
 
 process.send({
     type: 'memory_usage',

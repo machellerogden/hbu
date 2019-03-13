@@ -48,7 +48,8 @@ const processSpawn = (filePath, label) => {
         cwd,
         execArgv: [
             '-r', path.join(__dirname, 'instrument.js'),
-            '--expose-gc'
+            '--expose-gc',
+            '--single-threaded-gc'
         ]
     });
 };
@@ -84,6 +85,7 @@ const runOne = filePath => {
 
 const runAll = filePaths => Promise.all(filePaths.map(runOne));
 
+// TODO: unused right now ... should make an option
 const runAllSeq = filePaths => {
     const [ head, ...rest ] = filePaths;
     return filePaths.reduce((acc, fp) =>
@@ -111,12 +113,13 @@ const run = paths => runAll(paths).then(results => {
         const duration = perf_entries[0].duration;
 
         if (useGC) {
+            gc_events = gc_events.filter(evt => [ 1, 2, 15 ].includes(evt.gctype));
             const gc_length = gc_events.length;
             const [ gc_major_count, gc_minor_count ] = gc_events.reduce(([ major, minor ], evt) => {
-                if ([ 2, 15 ].includes(evt.gctype)) {
-                    major += 1;
-                } else {
+                if (evt.gctype === 1) {
                     minor += 1;
+                } else {
+                    major += 1;
                 }
                 return [ major, minor ];
             }, [ 0, 0 ]);
@@ -124,7 +127,10 @@ const run = paths => runAll(paths).then(results => {
             let gc_heap = 0;
             let gc_pause = 0;
             if (gc_length > 1) {
-                gc_heap = gc_events.map(({ diff }) => diff.usedHeapSize).reduce((a, b) => a - b);
+                gc_heap = gc_events
+                    .map(({ diff }) => diff.usedHeapSize)
+                    .reduce((a, b) => a - b);
+                if (Math.sign(gc_heap) === -1) gc_heap = 0;
                 gc_pause = gc_events.map(evt => evt.pause).reduce((a, b) => a + b) / 1200000;
             } else if (gc_length > 0) {
                 gc_heap = gc_events[0].diff.usedHeapSize;
