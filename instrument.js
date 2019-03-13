@@ -27,8 +27,8 @@ process.on('exit', () => {
     });
 });
 
+global.gc();
 if (process.env.HBU_GC_STATS) {
-    global.gc();
     require('gc-stats')().on('stats', stats => {
         process.send({
             type: 'gc_event',
