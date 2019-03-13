@@ -31,10 +31,10 @@ while (i < process.env.HBU_TIMES) {
 You could then run your test, like this:
 
 ```
-$ hbu './example/*.js' --times 100000
-| Label        | Heap Used          | Elapsed Time             |
-| ------------ | :----------------: | :----------------------: |
-| example-test |        12.97 MB    |          206.248026 MS   |
+$ hbu './example/*.js' --times 1000000 --gc-stats
+| Test Label   | Heap Used (MB) | Duration (MS) | GC Collected Heap (MB) | GC Pause Duration (MS) | GC Events (major) | GC Events (minor) |
+| ------------ | -------------: | ------------: | ---------------------: | ---------------------: | ----------------: | ----------------: |
+| example-test |          78.85 |    1427.17733 |                 193.02 |               86.24606 |                 2 |                25 |
 ```
 
 ## Usage
