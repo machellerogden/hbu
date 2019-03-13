@@ -23,11 +23,11 @@ const useGC = config['gc-stats'];
 const filePaths = glob.sync(testPattern, { nodir: true });
 
 let headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)' ];
-let columnAlignment = [ null, '.', '.' ];
+let columnAlignment = [ null, 'right', 'right' ];
 
 if (useGC) {
-    headings = [ ...headings, 'GC Events', "GC Collected Heap (MB)", 'GC Pause Duration (MS)' ];
-    columnAlignment = [ ...columnAlignment, null, '.', null ];
+    headings = [ ...headings, "GC Collected Heap (MB)", 'GC Pause Duration (MS)', 'GC Events (major)', 'GC Events (minor)' ];
+    columnAlignment = [ ...columnAlignment, 'right', 'right', 'right', 'right' ];
 }
 
 const runnerPath = path.join(__dirname, './runner');
@@ -47,71 +47,11 @@ const processSpawn = (filePath, label) => {
         env,
         cwd,
         execArgv: [
-            '-r', path.join(__dirname, 'instrument.js')
+            '-r', path.join(__dirname, 'instrument.js'),
+            '--expose-gc'
         ]
     });
 };
-
-// other node gc options to consider making configurable:
-// --log_gc (Log heap samples on garbage collection for the hp2ps tool.)
-//       type: bool  default: false
-// --expose_gc (expose gc extension)
-//       type: bool  default: false
-// --max_new_space_size (max size of the new generation (in kBytes))
-//       type: int  default: 0
-// --max_old_space_size (max size of the old generation (in Mbytes))
-//       type: int  default: 0
-// --max_executable_size (max size of executable memory (in Mbytes))
-//       type: int  default: 0
-// --gc_global (always perform global GCs)
-//       type: bool  default: false
-// --gc_interval (garbage collect after <n> allocations)
-//       type: int  default: -1
-// --trace_gc (print one trace line following each garbage collection)
-//       type: bool  default: false
-// --trace_gc_nvp (print one detailed trace line in name=value format after each garbage collection)
-//       type: bool  default: false
-// --trace_gc_ignore_scavenger (do not print trace line after scavenger collection)
-//       type: bool  default: false
-// --print_cumulative_gc_stat (print cumulative GC statistics in name=value format on exit)
-//       type: bool  default: false
-// --trace_gc_verbose (print more details following each garbage collection)
-//       type: bool  default: false
-// --trace_fragmentation (report fragmentation for old pointer and data pages)
-//       type: bool  default: false
-// --trace_external_memory (print amount of external allocated memory after each time it is adjusted.)
-//       type: bool  default: false
-// --collect_maps (garbage collect maps from which no objects can be reached)
-//       type: bool  default: true
-// --flush_code (flush code that we expect not to use again before full gc)
-//       type: bool  default: true
-// --incremental_marking (use incremental marking)
-//       type: bool  default: true
-// --incremental_marking_steps (do incremental marking steps)
-//       type: bool  default: true
-// --trace_incremental_marking (trace progress of the incremental marking)
-//       type: bool  default: false
-// --track_gc_object_stats (track object counts and memory usage)
-//       type: bool  default: false
-// --use_idle_notification (Use idle notification to reduce memory footprint.)
-//       type: bool  default: true
-// --use_ic (use inline caching)
-//       type: bool  default: true
-// --native_code_counters (generate extra code for manipulating stats counters)
-//       type: bool  default: false
-// --always_compact (Perform compaction on every full GC)
-//       type: bool  default: false
-// --lazy_sweeping (Use lazy sweeping for old pointer and data spaces)
-//       type: bool  default: true
-// --never_compact (Never perform compaction on full GC - testing only)
-//       type: bool  default: false
-// --compact_code_space (Compact code space on full non-incremental collections)
-//       type: bool  default: true
-// --incremental_code_compaction (Compact code space on full incremental collections)
-//       type: bool  default: true
-// --cleanup_code_caches_at_gc (Flush inline caches prior to mark compact collection and flush code caches in maps during mark compact cycle.)
-//       type: bool  default: true
-
 
 const runOne = filePath => {
     const label = path.parse(filePath).name;
@@ -171,19 +111,27 @@ const run = paths => runAll(paths).then(results => {
         const duration = perf_entries[0].duration;
 
         if (useGC) {
-            const gc_count = gc_events.length;
+            const gc_length = gc_events.length;
+            const [ gc_major_count, gc_minor_count ] = gc_events.reduce(([ major, minor ], evt) => {
+                if ([ 2, 15 ].includes(evt.gctype)) {
+                    major += 1;
+                } else {
+                    minor += 1;
+                }
+                return [ major, minor ];
+            }, [ 0, 0 ]);
 
             let gc_heap = 0;
             let gc_pause = 0;
-            if (gc_count > 1) {
+            if (gc_length > 1) {
                 gc_heap = gc_events.map(({ diff }) => diff.usedHeapSize).reduce((a, b) => a - b);
-                gc_pause = gc_events.map(evt => evt.pauseMS).reduce((a, b) => a + b);
-            } else if (gc_count > 0) {
+                gc_pause = gc_events.map(evt => evt.pause).reduce((a, b) => a + b) / 1200000;
+            } else if (gc_length > 0) {
                 gc_heap = gc_events[0].diff.usedHeapSize;
-                gc_pause = gc_events[0].pauseMS;
+                gc_pause = gc_events[0].pause / 1200000;
             }
 
-            return [ label, `${toMB(heapUsed)}`, duration, String(gc_count), `${toMB(gc_heap)}`, String(gc_pause) ];
+            return [ label, toMB(heapUsed).toFixed(2), duration.toFixed(5), toMB(gc_heap).toFixed(2), gc_pause.toFixed(5), gc_major_count, gc_minor_count ];
         }
 
         return [ label, `${toMB(heapUsed)}`, duration ];

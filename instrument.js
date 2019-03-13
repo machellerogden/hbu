@@ -4,11 +4,6 @@ const label = process.env.HBU_LABEL;
 
 const { PerformanceObserver, performance } = require('perf_hooks');
 
-process.send({
-    type: 'memory_usage',
-    data: process.memoryUsage()
-});
-
 const obs = new PerformanceObserver((items) => {
     process.send({
         type: 'perf_entries',
@@ -18,18 +13,6 @@ const obs = new PerformanceObserver((items) => {
 });
 
 obs.observe({ entryTypes: ['measure'] });
-
-if (process.env.HBU_GC_STATS) {
-    require('gc-stats')().on('stats', stats => {
-        process.send({
-            type: 'gc_event',
-            data: stats
-        });
-    });
-}
-
-performance.mark(`${label}_start`);
-
 
 process.on('exit', () => {
     performance.mark(`${label}_end`);
@@ -43,3 +26,20 @@ process.on('exit', () => {
         type: 'done'
     });
 });
+
+if (process.env.HBU_GC_STATS) {
+    global.gc();
+    require('gc-stats')().on('stats', stats => {
+        process.send({
+            type: 'gc_event',
+            data: stats
+        });
+    });
+}
+
+process.send({
+    type: 'memory_usage',
+    data: process.memoryUsage()
+});
+
+performance.mark(`${label}_start`);
