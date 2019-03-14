@@ -32,7 +32,6 @@ if (useGC) {
 
 const processSpawn = (filePath, label) => {
     const testPath = path.join(process.cwd(), filePath);
-    const { dir:cwd } = path.parse(testPath);
     const env = {
         ...process.env,
         HBU_LABEL: label,
@@ -43,7 +42,6 @@ const processSpawn = (filePath, label) => {
     }
     return fork(testPath, testArgs, {
         env,
-        cwd,
         execArgv: [
             '-r', path.join(__dirname, '..', 'lib', 'inject.js'),
             '--expose-gc'
@@ -107,7 +105,7 @@ const run = paths => runAll(paths).then(results => {
     const report = results.map(({ label, perf_entries, gc_events, memory_entries }) => {
 
         const heapUsed = memory_entries[memory_entries.length - 1].heapUsed - memory_entries[0].heapUsed;
-        const duration = perf_entries[0].duration;
+        const duration = perf_entries[0] && perf_entries[0].duration || 0;
 
         if (useGC) {
             gc_events = gc_events.filter(evt => [ 1, 2, 15 ].includes(evt.gctype));

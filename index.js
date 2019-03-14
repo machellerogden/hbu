@@ -6,15 +6,16 @@ exports.times = process.env.HBU_TIMES;
 
 const { PerformanceObserver, performance } = require('perf_hooks');
 
-const obs = new PerformanceObserver((items) => {
-    process.send({
-        type: 'perf_entries',
-        data: items.getEntries()
-    });
-    performance.clearMarks();
-});
+let obs;
 
 exports.start = () => {
+    obs = new PerformanceObserver((items) => {
+        process.send({
+            type: 'perf_entries',
+            data: items.getEntries()
+        });
+        performance.clearMarks();
+    });
 
     obs.observe({ entryTypes: ['measure'] });
 
@@ -44,7 +45,6 @@ exports.start = () => {
 };
 
 exports.end = () => {
-
     performance.mark(`${label}_end`);
 
     process.send({
