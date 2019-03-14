@@ -1,6 +1,6 @@
 'use strict';
 
-// run with ./bin/hbu './example/*.js' --times 1000000 --gc-stats
+// run with `./bin/hbu './example/default.js' --times 1000000 --gc-stats`
 
 const { start, end, times } = require('..');
 
@@ -16,7 +16,7 @@ let i = 0;
 
 start();
 
-while (i < process.env.HBU_TIMES) {
+while (i < times) {
     leak.push(JSON.parse(JSON.stringify(data)));
     i++;
 }

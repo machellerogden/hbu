@@ -9,6 +9,7 @@ const { PerformanceObserver, performance } = require('perf_hooks');
 let obs;
 
 exports.start = () => {
+    if (global.hbu_injected) return;
     obs = new PerformanceObserver((items) => {
         process.send({
             type: 'perf_entries',
@@ -45,6 +46,7 @@ exports.start = () => {
 };
 
 exports.end = () => {
+    if (global.hbu_injected) return;
     performance.mark(`${label}_end`);
 
     process.send({
@@ -55,5 +57,9 @@ exports.end = () => {
     performance.measure(label, `${label}_start`, `${label}_end`);
 
     obs.disconnect();
+
+    process.send({
+        type: 'done'
+    });
 };
 

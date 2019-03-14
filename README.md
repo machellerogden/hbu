@@ -16,7 +16,7 @@ npm i -g hbu
 
 ## Example
 
-If you had a test file called `example-test.js` inside a `./example` directory which looked like this:
+There is a file called `basic.js` inside the `./example` directory which looks like this:
 
 ```
 const { start, end, times } = require('hbu');
@@ -33,7 +33,7 @@ let i = 0;
 
 start();
 
-while (i < process.env.HBU_TIMES) {
+while (i < times) {
     leak.push(JSON.parse(JSON.stringify(data)));
     i++;
 }
@@ -41,16 +41,20 @@ while (i < process.env.HBU_TIMES) {
 end();
 ```
 
-You could then run your test, like this:
+As shown, simply import `hbu` and use the given `start`, `end` and `times` exports to instrument your test scenario.
+
+You can run your test, like this:
 
 ```
-$ hbu './example/*.js' --times 1000000 --gc-stats
+$ hbu './example/basic.js' --times 1000000 --gc-stats
 | Test Label   | Heap Used (MB) | Duration (MS) | GC Collected Heap (MB) | GC Pause Duration (MS) | GC Events (major) | GC Events (minor) |
 | ------------ | -------------: | ------------: | ---------------------: | ---------------------: | ----------------: | ----------------: |
 | example-test |          78.85 |    1427.17733 |                 193.02 |               86.24606 |                 2 |                25 |
 ```
 
 *Note:* only write *one test per file.* Each test is run in an isolated child process by the test runner to make sure the performance of a given test isn't impacted by other tests.
+
+If you want to test something without requiring in hbu and manually adding `start` and `end` calls, you make do so as shown in the [./examples/injected.js](./examples/injected.js) example file.
 
 ## Usage
 

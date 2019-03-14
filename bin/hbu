@@ -10,6 +10,7 @@ const { fork } = require('child_process');
 const config = rc('hbu', {
     times: 10,
     mode: 'sequential',
+    inject: false,
     'gc-stats': false
 });
 
@@ -18,9 +19,13 @@ if (!testPattern) throw new Error('No test pattern specified.');
 
 const testArgs = config['--'];
 
-const times = config.times;
-const runMode = config.mode;
-const useGC = config['gc-stats'];
+const {
+    times,
+    mode:runMode,
+    inject,
+    'gc-stats':useGC
+} = config;
+
 
 const filePaths = glob.sync(testPattern, { nodir: true });
 
@@ -31,6 +36,13 @@ if (useGC) {
     headings = [ ...headings, "GC Collected Heap (MB)", 'GC Pause Duration (MS)', 'GC Events (major)', 'GC Events (minor)' ];
     columnAlignment = [ ...columnAlignment, 'right', 'right', 'right', 'right' ];
 }
+
+const execArgv = inject
+    ? [
+        '-r', path.join(__dirname, '..', 'lib', 'inject.js'),
+        '--expose-gc'
+      ]
+    : [ '--expose-gc' ];
 
 const processSpawn = (filePath, label) => {
     const testPath = path.join(process.cwd(), filePath);
@@ -45,10 +57,7 @@ const processSpawn = (filePath, label) => {
     return fork(testPath, testArgs, {
         env,
         detached: true,
-        execArgv: [
-            '-r', path.join(__dirname, '..', 'lib', 'inject.js'),
-            '--expose-gc'
-        ]
+        execArgv
     });
 };
 
