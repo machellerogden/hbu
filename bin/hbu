@@ -44,6 +44,7 @@ const processSpawn = (filePath, label) => {
     }
     return fork(testPath, testArgs, {
         env,
+        detached: true,
         execArgv: [
             '-r', path.join(__dirname, '..', 'lib', 'inject.js'),
             '--expose-gc'
@@ -89,7 +90,7 @@ const runAllSequential = filePaths => {
             [ [ ...results, result ], runOne(fp) ]
         )),
         Promise.resolve([ [], runOne(head) ]))
-        .then(([results]) => results);
+        .then(([ results, p ]) => p.then(r => [ ...results, r ]));
 };
 
 const runAll = {
