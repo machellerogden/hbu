@@ -2,7 +2,7 @@
   "name": "hbu",
   "version": "0.0.15",
   "description": "How's by u? A performance analysis CLI",
-  "bin": "index.js",
+  "bin": "bin/hbu",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
