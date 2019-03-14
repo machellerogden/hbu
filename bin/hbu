@@ -84,7 +84,7 @@ const runAllParallel = filePaths => Promise.all(filePaths.map(runOne));
 
 const runAllSequential = filePaths => {
     const [ head, ...rest ] = filePaths;
-    return filePaths.reduce((acc, fp) =>
+    return rest.reduce((acc, fp) =>
         acc.then(([ results, p ]) => p.then(result =>
             [ [ ...results, result ], runOne(fp) ]
         )),
