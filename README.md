@@ -57,7 +57,7 @@ $ hbu './example/basic.js' --times 1000000 --gc-stats
 * Only write *one test per file.* Each test is run in an isolated child process by the test runner to make sure the performance of a given test isn't impacted by other tests.
 * Report output is valid markdown! Use it in READMEs or tther documentation.
 
-If you want to test something without requiring in hbu and manually adding `start` and `end` calls, you make do so as shown in the [./examples/injected.js](./examples/injected.js) example file.
+If you want to test something without requiring in hbu and manually adding `start` and `end` calls, you make do so as shown in the [./example/injected.js](./example/injected.js) example file.
 
 ## Usage
 
