@@ -29,7 +29,7 @@ const {
 
 const filePaths = glob.sync(testPattern, { nodir: true });
 
-let headings = [ 'Test Label', 'Heap Used (MB)', 'Duration (MS)' ];
+let headings = [ 'Test Label', 'Duration (MS)', 'Heap Used (MB)' ];
 let columnAlignment = [ null, 'right', 'right' ];
 
 if (useGC) {
@@ -147,7 +147,7 @@ const run = paths => runAll[runMode](paths).then(results => {
                 gc_pause = gc_events[0].pause / 1200000;
             }
 
-            return [ label, toMB(heapUsed).toFixed(2), duration.toFixed(5), toMB(gc_heap).toFixed(2), gc_pause.toFixed(5), gc_major_count, gc_minor_count ];
+            return [ label, duration.toFixed(5), toMB(heapUsed).toFixed(2), toMB(gc_heap).toFixed(2), gc_pause.toFixed(5), gc_major_count, gc_minor_count ];
         }
 
         return [ label, `${toMB(heapUsed)}`, duration ];
