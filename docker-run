@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+docker run --cpus=0.25 -m 1G --memory-swap 0 -t -w '/app' --mount src="$(pwd)",target=/app,type=bind node:latest /app/node_modules/.bin/hbu "$@"
