@@ -150,7 +150,7 @@ const run = paths => runAll[runMode](paths).then(results => {
             return [ label, duration.toFixed(5), toMB(heapUsed).toFixed(2), toMB(gc_heap).toFixed(2), gc_pause.toFixed(5), gc_major_count, gc_minor_count ];
         }
 
-        return [ label, `${toMB(heapUsed)}`, duration ];
+        return [ label, duration.toFixed(5), toMB(heapUsed).toFixed(2) ];
     });
 
     console.log(table([ headings, ...report ], { align: columnAlignment }))
