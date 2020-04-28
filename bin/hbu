@@ -153,7 +153,7 @@ const run = paths => runAll[runMode](paths).then(results => {
         return [ label, duration.toFixed(5), toMB(heapUsed).toFixed(2) ];
     });
 
-    console.log(table([ headings, ...report ], { align: columnAlignment }))
+    console.error(table([ headings, ...report ], { align: columnAlignment }))
 });
 
 run(filePaths);
